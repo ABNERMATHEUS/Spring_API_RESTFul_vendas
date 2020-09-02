@@ -1,7 +1,9 @@
 package com.cursospring.vendas.config;
 
+import com.cursospring.vendas.service.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -12,6 +14,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableWebSecurity
 public class securityConfig extends WebSecurityConfigurerAdapter {
 
+
+    @Autowired
+    UserService userService;
 
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -34,10 +39,16 @@ public class securityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication().passwordEncoder(passwordEncoder())
+       /**
+        * Usuário em memória
+        * auth.inMemoryAuthentication().passwordEncoder(passwordEncoder())
                                     .withUser("Abner")
                                     .password(passwordEncoder().encode("321"))
                                     .roles("USER");
+        **/
+
+       auth.userDetailsService(userService)
+           .passwordEncoder(passwordEncoder());
     }
 
     @Override
@@ -50,10 +61,13 @@ public class securityConfig extends WebSecurityConfigurerAdapter {
                     .hasAnyRole("USER","ADMIN")
                 .antMatchers("/api/produto/**")
                     .hasRole("ADMIN")
+                .antMatchers(HttpMethod.POST,"/api/usuarios/**") //Somente está liberado para qualquer um cadastrar um usuario (APENAS O POST)
+                    .permitAll()
+                .anyRequest().authenticated() //Se tiver outra url, precisa no mínimo estar autenticado
                 .and() //and() ele volta para raiz do objeto
                                 //  .permitAll() Qualquer usuário pode acessar
-                .formLogin(); //Ele cria um formulário de login ou criar uma page login e colocar o caminho  dentro ();
-
+                // .formLogin(); Ele cria um formulário de login ou criar uma page login e colocar o caminho  dentro ();
+                .httpBasic(); //Vamos poder fazer requisição através do header
     }
 
 
