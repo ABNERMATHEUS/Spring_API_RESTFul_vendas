@@ -1,23 +1,20 @@
 package com.cursospring.vendas.model;
 
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 
-@Setter
-@Getter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "usuario")
 public class Usuario {
 
 
-    public Usuario() {
-
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

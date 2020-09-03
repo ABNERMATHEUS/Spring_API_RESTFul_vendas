@@ -1,4 +1,4 @@
-package com.cursospring.vendas;
+package com.cursospring.vendas.security.jwt;
 
 import com.cursospring.vendas.model.Usuario;
 import io.jsonwebtoken.Claims;
@@ -34,7 +34,7 @@ public class JWTService {
         return Jwts.builder()
                 .setSubject(usuario.getLogin())
                 .setExpiration(date)
-                .signWith(SignatureAlgorithm.ES512,chaveAssinatura)
+                .signWith(SignatureAlgorithm.HS512,chaveAssinatura)
                 .compact();
     }
 
@@ -49,9 +49,9 @@ public class JWTService {
     public boolean tokenValido(String token){
         try{
            Claims claims =  objerClaims(token);
-           Date dataexpiracao = claims.getExpiration();
-           LocalDateTime date = dataexpiracao.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-           return LocalDateTime.now().isAfter(date);
+           Date dataExpiracao = claims.getExpiration();
+           LocalDateTime date = dataExpiracao.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+           return !LocalDateTime.now().isAfter(date);
         }catch (Exception e){
             return false;
         }

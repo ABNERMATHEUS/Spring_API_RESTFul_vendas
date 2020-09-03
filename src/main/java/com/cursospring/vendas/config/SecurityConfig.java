@@ -1,22 +1,35 @@
 package com.cursospring.vendas.config;
 
+import com.cursospring.vendas.security.jwt.JWTAuthFiltro;
+import com.cursospring.vendas.security.jwt.JWTService;
 import com.cursospring.vendas.service.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.filter.OncePerRequestFilter;
 
-@EnableWebSecurity
-public class securityConfig extends WebSecurityConfigurerAdapter {
+@EnableWebSecurity //Desativar como se fosse um webapp
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+    @Autowired
+    private JWTService jwtService;
 
     @Autowired
     UserService userService;
+
+    @Bean
+    public OncePerRequestFilter jwtFilter(){
+        return new JWTAuthFiltro(jwtService,userService);
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -51,7 +64,7 @@ public class securityConfig extends WebSecurityConfigurerAdapter {
            .passwordEncoder(passwordEncoder());
     }
 
-    @Override
+    @Override //Metodo para configurar as rotas de requisição
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable() // desabilitar, porque estamos usando como uma api
             .authorizeRequests()
@@ -67,8 +80,22 @@ public class securityConfig extends WebSecurityConfigurerAdapter {
                 .and() //and() ele volta para raiz do objeto
                                 //  .permitAll() Qualquer usuário pode acessar
                 // .formLogin(); Ele cria um formulário de login ou criar uma page login e colocar o caminho  dentro ();
-                .httpBasic(); //Vamos poder fazer requisição através do header
+               ///.httpBasic(); //Vamos poder fazer requisição através do header
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) //define que não vamos criar sessões
+                .and()
+                .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 
-
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        /**
+         * Metodo configurado para ignorar e não passar no filtro de autenticação do token, as url da documentação
+         */
+        web.ignoring().antMatchers( "/v2/api-docs",
+                "/configuration/ui",
+                "/swagger-resources/**",
+                "/configuration/security",
+                "/swagger-ui.html",
+                "/webjars/**");
+    }
 }

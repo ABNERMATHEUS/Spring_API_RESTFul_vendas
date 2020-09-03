@@ -1,5 +1,6 @@
 package com.cursospring.vendas.service.impl;
 
+import com.cursospring.vendas.exception.SenhaInvalidaException;
 import com.cursospring.vendas.model.Usuario;
 import com.cursospring.vendas.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +16,13 @@ import javax.transaction.Transactional;
 
 @Service
 public class UserService implements UserDetailsService {
+
     @Autowired
     private  PasswordEncoder encoder;
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
 
     @Transactional //Como estamos em uma camada de servico vamos colocar @TRANSACTIONAL
     public Usuario salvar(Usuario usuario){
@@ -52,4 +55,16 @@ public class UserService implements UserDetailsService {
                .build();
 
     }
+
+
+
+    public UserDetails autenticar(Usuario usuario){
+        UserDetails user = loadUserByUsername(usuario.getLogin());
+        boolean senhasBatem = encoder.matches(usuario.getPassword(),user.getPassword());
+        if(senhasBatem){
+            return user;
+        }
+        throw new SenhaInvalidaException();
+    }
+
 }
