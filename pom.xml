@@ -11,12 +11,36 @@
     <groupId>com.cursospring</groupId>
     <artifactId>vendas</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>${project.packaging}</packaging>
     <name>vendasModulo3</name>
     <description>Venda - Persistencia</description>
 
     <properties>
         <java.version>1.8</java.version>
     </properties>
+
+    <profiles>
+        <profile>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <id>desenvolvimento</id>
+           <properties>
+            <project.packaging>jar</project.packaging>
+            <tomcat.scope>compile</tomcat.scope>
+            </properties>
+        </profile>
+
+
+        <profile>
+            <id>producao</id>
+            <properties>
+            <project.packaging>war</project.packaging>
+            <tomcat.scope>provided</tomcat.scope>
+            </properties>
+        </profile>
+
+    </profiles>
 
     <dependencies>
         <dependency>
@@ -32,6 +56,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
 
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>${tomcat.scope}</scope>
         </dependency>
 
         <dependency>

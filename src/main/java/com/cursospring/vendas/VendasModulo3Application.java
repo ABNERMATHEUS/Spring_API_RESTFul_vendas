@@ -2,9 +2,10 @@ package com.cursospring.vendas;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
-@SpringBootApplication
-public class VendasModulo3Application {
+@SpringBootApplication  ///SpringBootServletInitializer para virar uma aplicacação web, depois que configurou o xml - tomcat (pom.xml)
+public class VendasModulo3Application extends SpringBootServletInitializer {
 
 
 

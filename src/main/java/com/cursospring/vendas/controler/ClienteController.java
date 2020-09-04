@@ -3,6 +3,7 @@ package com.cursospring.vendas.controler;
 
 import com.cursospring.vendas.model.Cliente;
 import com.cursospring.vendas.repository.ClienteRepository;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
@@ -22,6 +23,7 @@ import java.util.List;
 @RestController //Anotação expecializada em controller se usarmos ela, não precisamos usar o @ReponseBody, porque automaticamente ela já vem inserida
                 // Anotação com @controller ai sim terá que usar a @ReponseBody
 @RequestMapping("/api/clientes")
+@Api("Api Clientes")
 public class ClienteController {
 
 
@@ -37,16 +39,25 @@ public class ClienteController {
 
     @Autowired
     private ClienteRepository clienteRepository;
-
+    @ApiOperation("Obter detalhes de um cliente")
+    @ApiResponses({
+            @ApiResponse(code = 200,message = "Cliente encontrado"),
+            @ApiResponse(code = 404,message = "Cliente não encontrado para o ID informado")
+    })
     @GetMapping("/{id}")
     //Se o nome do parametr da url for diferente então coloque @PathVariable("nomeParamsURL" para atribuir no Intergir id)
-    public Cliente getClienteById(@PathVariable Integer id) {
+    public Cliente getClienteById(@PathVariable @ApiParam("id do cliente") Integer id) {
 
         return clienteRepository.findById(id)
                          .orElseThrow( ()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Cliente não encontrado"));
 
     }
 
+    @ApiOperation("Salvar um novo cliente")
+    @ApiResponses({
+            @ApiResponse(code = 201,message = "Cliente salvo com sucesso"),
+            @ApiResponse(code = 404,message = "Erro de validação")
+    })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED) //Irá enviar como padrão este status 201
     public Cliente registrar(@RequestBody @Valid Cliente cliente){
